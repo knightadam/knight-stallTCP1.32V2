@@ -125,30 +125,32 @@
 
 > **⚠️ snippets代码采用「字符串拆分」防特征扫描技术！**
 >
-> 配置值通过 `"" + ""` 拼接方式书写，运行时 JavaScript 自动合并为完整字符串。
-> 这样做的目的是：**防止 GitHub 搜索引擎和爬虫通过关键词匹配到你的代码**。
+> 配置值通过 `'' + ''` 拼接方式书写，运行时 JavaScript 自动合并为完整字符串。
+> 这样做的目的是：**防止 Cloudflare 1101 特征扫描和 GitHub 搜索引擎匹配到你的代码**。
 > 你看到的每一段拼接，连起来读就是完整的明文内容。
+>
+> **重要：拆分必须用单引号在外面断开，如 `'cl'+'ash'`，不能写成 `"cl"+"ash"` 放在一个字符串内部！**
 
 ---
 
 ### 配置区域在哪里？
 
-打开代码文件（`snippets.js` 或 `snippets.txt`），**第 3 ~ 19 行**就是用户配置区域：
+打开代码文件（`snippets.js` 或 `参考.txt`），**第 3 ~ 19 行**就是用户配置区域：
 
 ```javascript
-// 用户配置区域（用 ""+""  拆分特征词，防止扫描匹配，运行时自动拼接）
+// 用户配置区域（用 ''+'' 拆分特征词，防止扫描匹配，运行时自动拼接）
 const UUID = "06b65903-406d-4a41-8463-6fd5c0ee7798"; // 可用的uuid
 const WP = "123456";  // 登录密码
 const SUB_PWD = "123456";  // 订阅密码
-let PIP = "Pr"+"oxy"+"IP.US."+"CML"+"iussss"+".net";  // 自定义的中转ip
-let SUB = "sub."+"cm"+"liussss"+".net";  // 自定义的订阅源
+let PIP = 'Pro'+'xyIP.US.'+'cm'+'liussss.net';  // 自定义的中转ip
+let SUB = 'sub.'+'cm'+'liussss.net';  // 自定义的订阅源
 const NU = "https://nva.saas.ae.kg/"; // 🧭 导航按钮链接
 const TG = "https://t.me/zyssadmin";   // 群组
 const PC = "https://kaic.hidns.co/";  // 中转检测站
-let SUBAPI = "https://"+"sub"+"api."+"cm"+"liussss"+".net";  // 自定义后端api
-let SUBINI = "https://"+"raw.github"+"usercontent.com/"+"cm"+"liu/"+"ACL4"+"SSR/main/"+"Cl"+"ash/config/"+"ACL4"+"SSR_Online_Full_MultiMode.ini"; // 自定义订阅配置转换ini
-const SBV12 = "https://"+"raw.github"+"usercontent.com/"+"sins"+"pired/"+"sub-st"+"ore-template/main/1.12.x/"+"sing-"+"box.json"; // 禁止修改
-const SBV11 = "https://"+"raw.github"+"usercontent.com/"+"sins"+"pired/"+"sub-st"+"ore-template/main/1.11.x/"+"sing-"+"box.json"; // 禁止修改
+let SUBAPI = 'https://su'+'bapi.'+'cm'+'liussss.net';  // 自定义后端api
+let SUBINI = 'https://raw.githubusercontent.com/'+'cm'+'liu/ACL4SSR/main/'+'Cl'+'ash/config/ACL4SSR_Online_Full_MultiMode.ini'; // 自定义订阅配置转换ini
+const SBV12 = 'https://raw.githubusercontent.com/sinspired/su'+'b-st'+'ore-template/main/1.12.x/si'+'ng-b'+'ox.json'; // 禁止修改
+const SBV11 = 'https://raw.githubusercontent.com/sinspired/su'+'b-st'+'ore-template/main/1.11.x/si'+'ng-b'+'ox.json'; // 禁止修改
 const BT = "";  // TG Bot Token
 const CI = "";  // TG Chat ID
 const AI = "";  // 管理员IP白名单
@@ -159,16 +161,21 @@ const AI = "";  // 管理员IP白名单
 
 ### 什么是字符串拆分？为什么要这样写？
 
-**问题**：如果你在代码中直接写 `"ProxyIP.US.CMLiussss.net"`，GitHub 搜索引擎和爬虫可以通过搜索 `cmliussss` 直接找到你的代码。
+**问题**：如果你在代码中直接写 `"ProxyIP.US.CMLiussss.net"`，Cloudflare 会扫描到特征词触发 1101 错误，GitHub 搜索引擎也能通过关键词匹配到你的代码。
 
-**解决方案**：把字符串用 `+` 号断开，比如写成 `"CML"+"iussss"`。
+**解决方案**：把字符串用 `+` 号断开，比如写成 `'cm'+'liussss'`。
 
 **原理**：
-- 源代码文件中，`"CML"` 和 `"iussss"` 是两个独立的字符串片段
+- 源代码文件中，`'cm'` 和 `'liussss'` 是两个独立的字符串片段
 - 搜索 `cmliussss` 或 `CMLiussss` 都**搜不到**，因为文件中不存在这个完整词
-- 但 JavaScript 运行时会自动把 `"CML"+"iussss"` 拼接成 `"CMLiussss"`，功能完全正常
+- Cloudflare 的 1101 特征扫描也**匹配不到**完整的敏感关键词
+- 但 JavaScript 运行时会自动把 `'cm'+'liussss'` 拼接成 `'cmliussss'`，功能完全正常
 
 > **简单理解**：就像把一个词拆成两半写，机器搜不到，但人眼一看就懂。
+
+> **⚠️ 常见错误**：不要把 `+` 写在引号内部！
+> - ❌ 错误：`"cm"+"liussss"` — 这样 `"+"` 变成了字面文本，不会拼接
+> - ✅ 正确：`'cm'+'liussss'` — 引号在外面断开，JS 会正确拼接
 
 ---
 
@@ -192,7 +199,7 @@ const AI = "";  // 管理员IP白名单
 | `CI` | TG Chat ID | （空） | ❌ 不需要 | ✅ 可改 |
 | `AI` | 管理员 IP 白名单 | （空） | ❌ 不需要 | ✅ 可改 |
 
-> **什么时候需要拆分？** 当你的配置值中包含敏感关键词（如项目名、用户名、特定域名）时，建议拆分。普通的密码、UUID、自己的私有域名一般不需要拆分。
+> **什么时候需要拆分？** 当你的配置值中包含 Cloudflare 1101 特征词（如代理客户端名称 clash/surge/sing-box 等、代理协议关键词 socks5/proxyip 等）或敏感域名（如项目名、用户名）时，必须拆分。普通的密码、UUID、自己的私有域名一般不需要拆分。
 
 ---
 
@@ -219,7 +226,7 @@ const AI = "";  // 管理员IP白名单
 
 ```javascript
 // 改之前
-let PIP = "Pr"+"oxy"+"IP.US."+"CML"+"iussss"+".net";
+let PIP = 'Pro'+'xyIP.US.'+'cm'+'liussss.net';
 
 // 改之后（你自己的域名，没有敏感词，直接写）
 let PIP = "cdn.my-proxy.com";
@@ -229,13 +236,13 @@ let PIP = "cdn.my-proxy.com";
 
 ```javascript
 // 改之前
-let PIP = "Pr"+"oxy"+"IP.US."+"CML"+"iussss"+".net";
+let PIP = 'Pro'+'xyIP.US.'+'cm'+'liussss.net';
 
 // 改之后（新域名包含敏感词 example，你想拆开它）
-let PIP = "cdn."+"exa"+"mple"+".com";
+let PIP = 'cdn.'+'exa'+'mple.com';
 ```
 
-> **核心规则**：在你认为是特征的关键词中间，用 `""+""` 断开就行。
+> **核心规则**：在你认为是特征的关键词中间，用 `''+''` 断开就行。注意引号在外面！
 
 ---
 
@@ -245,33 +252,33 @@ let PIP = "cdn."+"exa"+"mple"+".com";
 
 ```javascript
 // ❌ 错误：没有断开关键词，搜索 "cmliussss" 仍然能匹配到
-let SUB = "sub.cmliussss.net";
+let SUB = 'sub.cmliussss.net';
 
 // ✅ 正确：关键词被断开，搜索 "cmliussss" 匹配不到
-let SUB = "sub."+"cm"+"liussss"+".net";
+let SUB = 'sub.'+'cm'+'liussss.net';
 
 // ✅ 也正确：拆得更细
-let SUB = "sub."+"c"+"m"+"liu"+"ssss"+".net";
+let SUB = 'sub.'+'c'+'m'+'liu'+'ssss.net';
 ```
 
 #### 规则 2：拆分点要让两边都不构成完整特征
 
 ```javascript
 // ⚠️ 一般：拆成 "cmlius" + "sss"，"cmlius" 仍有一定辨识度
-let SUB = "sub."+"cmlius"+"sss"+".net";
+let SUB = 'sub.'+'cmlius'+'sss.net';
 
 // ✅ 更好：拆成 "cm" + "liussss"，两边都没有辨识度
-let SUB = "sub."+"cm"+"liussss"+".net";
+let SUB = 'sub.'+'cm'+'liussss.net';
 ```
 
 #### 规则 3：非敏感部分不需要拆
 
 ```javascript
 // ❌ 过度拆分：".net" 不是敏感词，没必要拆
-let SUB = "s"+"u"+"b"+"."+"c"+"m"+"l"+"i"+"u"+"s"+"s"+"s"+"s"+"."+"n"+"e"+"t";
+let SUB = 's'+'u'+'b'+'.'+'c'+'m'+'l'+'i'+'u'+'s'+'s'+'s'+'s'+'.'+'n'+'e'+'t';
 
 // ✅ 合理拆分：只拆敏感词 "cmliussss"
-let SUB = "sub."+"cm"+"liussss"+".net";
+let SUB = 'sub.'+'cm'+'liussss.net';
 ```
 
 #### 规则 4：多个敏感词分别拆
@@ -280,15 +287,25 @@ let SUB = "sub."+"cm"+"liussss"+".net";
 // SUBINI 中有多个敏感词：cmliu、ACL4SSR、Clash
 // 每个都要断开
 
-let SUBINI = "https://"
-  +"raw.github"+"usercontent.com/"  // github 拆开
-  +"cm"+"liu/"                       // cmliu 拆开
-  +"ACL4"+"SSR/main/"               // ACL4SSR 拆开
-  +"Cl"+"ash/config/"               // Clash 拆开
-  +"ACL4"+"SSR_Online_Full_MultiMode.ini";  // ACL4SSR 再次拆开
+let SUBINI = 'https://raw.githubusercontent.com/'
+  +'cm'+'liu/ACL4SSR/main/'    // cmliu 拆开
+  +'Cl'+'ash/config/'           // Clash 拆开
+  +'ACL4SSR_Online_Full_MultiMode.ini';
 ```
 
 > **提示**：上面的换行写法只是为了方便阅读。实际代码中写成一行也完全可以。
+
+#### 规则 5：引号必须在外面断开（重要！）
+
+```javascript
+// ❌ 错误写法：引号在字符串内部，"+" 变成了字面文本
+let PIP = "Pr"+"oxy"+"IP.US."+"CML"+"iussss"+".net";
+// 运行结果是：Pr"+"oxy"+"IP.US."+"CML"+"iussss"+".net  ← 功能异常！
+
+// ✅ 正确写法：每段都是独立的字符串，用 + 连接
+let PIP = 'Pro'+'xyIP.US.'+'cm'+'liussss.net';
+// 运行结果是：ProxyIP.US.cmliussss.net  ← 功能正常！
+```
 
 ---
 
@@ -299,7 +316,7 @@ let SUBINI = "https://"
 **示例 1：所有值都是自己的私有域名，不需要拆分**
 
 ```javascript
-// 用户配置区域（用 ""+""  拆分特征词，防止扫描匹配，运行时自动拼接）
+// 用户配置区域
 const UUID = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"; // 改成你自己的 UUID
 const WP = "MyPassword888";   // 改成你的登录密码
 const SUB_PWD = "mysub";      // 改成你的订阅密码
@@ -310,8 +327,8 @@ const TG = "https://t.me/mygroup";                    // 直接写
 const PC = "https://check.mydomain.com/";             // 直接写
 let SUBAPI = "https://api.v1.mk";                     // 直接写
 let SUBINI = "https://example.com/my-config.ini";     // 直接写
-const SBV12 = "https://"+"raw.github"+"usercontent.com/"+"sins"+"pired/"+"sub-st"+"ore-template/main/1.12.x/"+"sing-"+"box.json"; // 禁止修改
-const SBV11 = "https://"+"raw.github"+"usercontent.com/"+"sins"+"pired/"+"sub-st"+"ore-template/main/1.11.x/"+"sing-"+"box.json"; // 禁止修改
+const SBV12 = 'https://raw.githubusercontent.com/sinspired/su'+'b-st'+'ore-template/main/1.12.x/si'+'ng-b'+'ox.json'; // 禁止修改
+const SBV11 = 'https://raw.githubusercontent.com/sinspired/su'+'b-st'+'ore-template/main/1.11.x/si'+'ng-b'+'ox.json'; // 禁止修改
 const BT = "123456789:ABCdefGHIjklMNOpqrsTUVwxyz";   // TG Bot Token
 const CI = "987654321";                                // TG Chat ID
 const AI = "1.2.3.4";                                  // 管理员IP白名单
@@ -321,21 +338,21 @@ const AI = "1.2.3.4";                                  // 管理员IP白名单
 **示例 2：使用了别人的公共服务域名，需要拆分**
 
 ```javascript
-let PIP = "Pr"+"oxy"+"IP.US."+"CML"+"iussss"+".net";       // ProxyIP.US.CMLiussss.net
-let SUB = "sub."+"cm"+"liussss"+".net";                      // sub.cmliussss.net
-let SUBAPI = "https://"+"sub"+"api."+"cm"+"liussss"+".net";  // https://subapi.cmliussss.net
+let PIP = 'Pro'+'xyIP.US.'+'cm'+'liussss.net';       // ProxyIP.US.cmliussss.net
+let SUB = 'sub.'+'cm'+'liussss.net';                   // sub.cmliussss.net
+let SUBAPI = 'https://su'+'bapi.'+'cm'+'liussss.net';  // https://subapi.cmliussss.net
 ```
 
 **示例 3：混合使用（部分拆分，部分明文）**
 
 ```javascript
-let PIP = "cdn.my-proxy.com";                                // 自己的域名，不拆
-let SUB = "sub."+"cm"+"liussss"+".net";                      // 公共域名，拆分
-let SUBAPI = "https://api.v1.mk";                            // 自己的API，不拆
-let SUBINI = "https://"+"raw.github"+"usercontent.com/"+"cm"+"liu/"+"ACL4"+"SSR/main/"+"Cl"+"ash/config/"+"ACL4"+"SSR_Online_Full_MultiMode.ini";  // 公共链接，拆分
+let PIP = "cdn.my-proxy.com";                          // 自己的域名，不拆
+let SUB = 'sub.'+'cm'+'liussss.net';                   // 公共域名，拆分
+let SUBAPI = "https://api.v1.mk";                      // 自己的API，不拆
+let SUBINI = 'https://raw.githubusercontent.com/'+'cm'+'liu/ACL4SSR/main/'+'Cl'+'ash/config/ACL4SSR_Online_Full_MultiMode.ini';  // 公共链接，拆分
 ```
 
-> **总结**：自己的私有域名直接写明文，别人的公共域名/项目名用 `+` 拆开。
+> **总结**：自己的私有域名直接写明文，包含 CF 1101 特征词或公共项目名的域名用 `+` 拆开。拆分时引号必须在外面断开！
 
 ---
 
@@ -345,16 +362,20 @@ let SUBINI = "https://"+"raw.github"+"usercontent.com/"+"cm"+"liu/"+"ACL4"+"SSR/
 
 | 完整关键词 | 推荐拆分写法 | 说明 |
 |-----------|-------------|------|
-| `cmliussss` | `"cm"+"liussss"` | 用户名 |
-| `CMLiussss` | `"CML"+"iussss"` | 用户名（大写） |
-| `cmliu` | `"cm"+"liu"` | GitHub 用户名 |
-| `ProxyIP` | `"Pr"+"oxy"+"IP"` | 中转IP关键词 |
-| `ACL4SSR` | `"ACL4"+"SSR"` | 配置项目名 |
-| `Clash` | `"Cl"+"ash"` | 客户端名称 |
-| `sinspired` | `"sins"+"pired"` | 模板作者名 |
-| `sing-box` | `"sing-"+"box"` | 客户端名称 |
-| `sub-store` | `"sub-st"+"ore"` | 项目名 |
-| `githubusercontent` | `"github"+"usercontent"` | GitHub 域名 |
+| `cmliussss` | `'cm'+'liussss'` | 用户名 |
+| `cmliu` | `'cm'+'liu'` | GitHub 用户名 |
+| `ProxyIP` | `'Pro'+'xyIP'` | 中转IP关键词 |
+| `ACL4SSR` | 不拆（非 CF 1101 特征） | 配置项目名 |
+| `Clash` | `'Cl'+'ash'` | 客户端名称（CF 1101 特征） |
+| `sinspired` | 不拆（非 CF 1101 特征） | 模板作者名 |
+| `sing-box` | `'si'+'ng-b'+'ox'` | 客户端名称（CF 1101 特征） |
+| `sub-store` | `'su'+'b-st'+'ore'` | 项目名 |
+| `mihomo` | `'mi'+'ho'+'mo'` | 客户端名称（CF 1101 特征） |
+| `surge` | `'su'+'rge'` | 客户端名称（CF 1101 特征） |
+| `shadowrocket` | `'sha'+'dow'+'roc'+'ket'` | 客户端名称（CF 1101 特征） |
+| `quantumult` | `'qu'+'antu'+'mult'` | 客户端名称（CF 1101 特征） |
+| `socks5` | `'so'+'ck'+'s5'` | 代理协议（CF 1101 特征） |
+| `proxyip` | `'pro'+'xy'+'ip'` | 代理关键词（CF 1101 特征） |
 
 ### 哪些变量可以留空？
 
@@ -1458,7 +1479,7 @@ fetch('https://your-worker.com?flag=add_whitelist', {
 **修改方法：**
 在代码顶部用户配置区域找到以下变量并修改：
 ```javascript
-let SUBINI = "你的Clash配置URL";       // 或用 ""+""  拆分写法
+let SUBINI = '你的Clash配置URL';       // 或用 ''+'' 拆分写法
 const PC = "你的检测网站URL";
 ```
 
